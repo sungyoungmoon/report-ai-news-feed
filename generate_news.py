@@ -1,6 +1,14 @@
 import json
 import os
 import time
+from datetime import date, timedelta
+
+
+def get_week_range() -> tuple[str, str]:
+    today = date.today()
+    days_since_saturday = (today.weekday() - 5) % 7
+    last_saturday = today - timedelta(days=days_since_saturday)
+    return last_saturday.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")
 
 GEMINI_MODEL = "gemini-2.5-flash"
 
@@ -50,12 +58,8 @@ def _gemini_generate(client, prompt: str, max_retries: int = 4) -> str:
 
 
 def main():
-    with open("request.json", encoding="utf-8") as f:
-        req = json.load(f)
-
-    week_start = req["week_start"]
-    week_end = req["week_end"]
-    run_id = req["run_id"]
+    week_start, week_end = get_week_range()
+    run_id = date.today().strftime("%Y%m%d")
 
     api_key = os.environ["GEMINI_API_KEY"]
 
